@@ -72,14 +72,21 @@ public partial class PartyCharacter
 
 static public class AssignmentPart1
 {
+    const int PartyCharacterSaveDataSignifier = 0;
+    const int EquipmentSaveDataSignifier = 1;
+
     static public void SavePartyButtonPressed()
-    {        
-        
+    {    
         StreamWriter sw = new StreamWriter(Application.dataPath + Path.DirectorySeparatorChar + "SaveFile.txt");
         foreach (PartyCharacter pc in GameContent.partyCharacters)
         {
             Debug.Log("PC class id == " + pc.classID);
-            sw.WriteLine(pc.classID + "," + pc.health + "," + pc.mana + "," + pc.strength + "," + pc.agility + "," + pc.wisdom);
+            sw.WriteLine(PartyCharacterSaveDataSignifier + "," + pc.classID + "," + pc.health + "," + pc.mana + "," + pc.strength + "," + pc.agility + "," + pc.wisdom);
+
+            foreach (int equip in pc.equipment)
+            {
+                sw.WriteLine(EquipmentSaveDataSignifier + "," + equip);
+            }
         }
 
         sw.Close();
@@ -97,8 +104,17 @@ static public class AssignmentPart1
             while ((line = sr.ReadLine()) != null)
             {
                 string[] arr = line.Split(',');
-                PartyCharacter temp = new PartyCharacter(int.Parse(arr[0]), int.Parse(arr[1]), int.Parse(arr[2]), int.Parse(arr[3]), int.Parse(arr[4]), int.Parse(arr[5]));
-                GameContent.partyCharacters.AddLast(temp);
+                int saveDataSignifier = int.Parse(arr[0]);
+                
+                if (saveDataSignifier == PartyCharacterSaveDataSignifier)
+                {
+                    PartyCharacter temp = new PartyCharacter(int.Parse(arr[1]), int.Parse(arr[2]), int.Parse(arr[3]), int.Parse(arr[4]), int.Parse(arr[5]), int.Parse(arr[6]));
+                    GameContent.partyCharacters.AddLast(temp);
+                }
+                else if (saveDataSignifier == EquipmentSaveDataSignifier)
+                {
+                    GameContent.partyCharacters.Last.Value.equipment.AddLast(int.Parse(arr[1]));
+                }
             }
             GameContent.RefreshUI();
         }
@@ -119,7 +135,7 @@ static public class AssignmentPart1
 //  This will enable the needed UI/function calls for your to proceed with your assignment.
 static public class AssignmentConfiguration
 {
-    public const int PartOfAssignmentThatIsInDevelopment = 1;
+    public const int PartOfAssignmentThatIsInDevelopment = 2;
 }
 
 /*
@@ -162,6 +178,7 @@ static public class AssignmentPart2
     {
 
         GameContent.RefreshUI();
+        Debug.Log("Start");
 
     }
 
@@ -183,16 +200,17 @@ static public class AssignmentPart2
     static public void SavePartyButtonPressed()
     {
         GameContent.RefreshUI();
+        Debug.Log("Save");
     }
 
     static public void NewPartyButtonPressed()
     {
-
+        Debug.Log("New Party");
     }
 
     static public void DeletePartyButtonPressed()
     {
-
+        Debug.Log("Delete");
     }
 
 }
