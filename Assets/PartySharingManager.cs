@@ -26,7 +26,7 @@ public class PartySharingManager : MonoBehaviour
 
     public void SharePartyButtonPressed()
     {
-
+        AssignmentPart2.SendPartyDataToServer(networkedClient);
     }
 
     public void JoinSharingRoomButton()
@@ -41,12 +41,4 @@ public class PartySharingManager : MonoBehaviour
     }
 }
 
-static public class ClientToServerSignifiers
-{
-    public const int JoinSharingRoom = 1;
-}
 
-static public class ServerToClientSignifiers
-{
-
-}

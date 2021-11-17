@@ -16,7 +16,7 @@ public class NetworkedClient : MonoBehaviour
     byte error;
     bool isConnected = false;
     int ourClientID;
-
+    List<string> sharedPartyData;
     // Start is called before the first frame update
     void Start()
     {
@@ -104,6 +104,21 @@ public class NetworkedClient : MonoBehaviour
     private void ProcessRecievedMsg(string msg, int id)
     {
         Debug.Log("msg recieved = " + msg + ".  connection id = " + id);
+
+        string[] csv = msg.Split(',');
+        int signifier =int.Parse(csv[0]);
+        if (signifier == ServerToClientSignifiers.ServerSendPartyDataTransferStart)
+        {
+            sharedPartyData = new List<string>();
+        }
+        if (signifier == ServerToClientSignifiers.ServerSendingPartyData)
+        {
+            sharedPartyData.Add(msg);
+        }
+        if (signifier == ServerToClientSignifiers.ServerSendingPartyDataTransferEnd)
+        {
+            //Load/Save the party into the 
+        }
     }
 
     public bool IsConnected()
@@ -112,4 +127,19 @@ public class NetworkedClient : MonoBehaviour
     }
 
 
+}
+
+static public class ClientToServerSignifiers
+{
+    public const int JoinSharingRoom = 1;
+    public const int PartyDataSendTransferStart = 101;
+    public const int PartyDataTransfer = 102;
+    public const int PartyDataTransferEnd = 103;
+}
+
+static public class ServerToClientSignifiers
+{
+    public const int ServerSendPartyDataTransferStart = 101;
+    public const int ServerSendingPartyData = 102;
+    public const int ServerSendingPartyDataTransferEnd = 103;
 }
