@@ -113,11 +113,12 @@ public class NetworkedClient : MonoBehaviour
         }
         if (signifier == ServerToClientSignifiers.ServerSendingPartyData)
         {
+            
             sharedPartyData.Add(msg);
         }
         if (signifier == ServerToClientSignifiers.ServerSendingPartyDataTransferEnd)
         {
-            //Load/Save the party into the 
+            AssignmentPart2.LoadPartyFromReceivedData(sharedPartyData);
         }
     }
 

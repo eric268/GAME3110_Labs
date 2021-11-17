@@ -247,7 +247,7 @@ static public class AssignmentPart2
         sw.WriteLine("1," + lastUsedIndex);
         foreach (PartySaveData pData in parties)
         {
-            sw.WriteLine("2,"+pData.index + "," + pData.name);
+            sw.WriteLine("2,"+ pData.index + "," + pData.name);
         }
         sw.Close();
     }
@@ -306,6 +306,37 @@ static public class AssignmentPart2
         }
 
         networkedClient.SendMessageToHost(ClientToServerSignifiers.PartyDataTransferEnd +  "");
+    }
+
+    static public void LoadPartyFromReceivedData(List<string> data)
+    {
+        Debug.Log("Loading Party");
+
+        foreach(string s in data)
+        {
+            Debug.Log("Party info: " + s);
+        }
+
+        GameContent.partyCharacters.Clear();
+        const int PartyCharacterSaveDataSignifier = 0;
+        const int EquipmentSaveDataSignifier = 1;
+        foreach (string line in data)
+        {
+           string[] arr = line.Split(',');
+           int saveDataSignifier = int.Parse(arr[1]);
+
+           if (saveDataSignifier == PartyCharacterSaveDataSignifier)
+           {
+               PartyCharacter temp = new PartyCharacter(int.Parse(arr[2]), int.Parse(arr[3]), int.Parse(arr[4]), int.Parse(arr[5]), int.Parse(arr[6]), int.Parse(arr[7]));
+               GameContent.partyCharacters.AddLast(temp);
+           }
+           else if (saveDataSignifier == EquipmentSaveDataSignifier)
+           {
+               GameContent.partyCharacters.Last.Value.equipment.AddLast(int.Parse(arr[2]));
+           }
+            
+        }
+        GameContent.RefreshUI();
     }
 }
 
