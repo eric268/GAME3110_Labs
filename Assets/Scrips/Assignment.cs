@@ -284,19 +284,7 @@ static public class AssignmentPart2
 
     public static void SendPartyDataToServer(NetworkedClient networkedClient)
     {
-        const int PartyCharacterSaveDataSignifier = 0;
-        const int EquipmentSaveDataSignifier = 1;
-        List<string> data = new List<string>();
-        foreach (PartyCharacter pc in GameContent.partyCharacters)
-        {
-            Debug.Log("PC class id == " + pc.classID);
-            data.Add(PartyCharacterSaveDataSignifier + "," + pc.classID + "," + pc.health + "," + pc.mana + "," + pc.strength + "," + pc.agility + "," + pc.wisdom);
-
-            foreach (int equip in pc.equipment)
-            {
-                data.Add(EquipmentSaveDataSignifier + "," + equip);
-            }
-        }
+        LinkedList<string> data = DataManager.SerializeParty(GameContent.partyCharacters);
 
         networkedClient.SendMessageToHost(ClientToServerSignifiers.PartyDataSendTransferStart + "");
 
@@ -310,32 +298,6 @@ static public class AssignmentPart2
 
     static public void LoadPartyFromReceivedData(List<string> data)
     {
-        //Debug.Log("Loading Party");
-
-        //foreach(string s in data)
-        //{
-        //    Debug.Log("Party info: " + s);
-        //}
-
-        //GameContent.partyCharacters.Clear();
-        //const int PartyCharacterSaveDataSignifier = 0;
-        //const int EquipmentSaveDataSignifier = 1;
-        //foreach (string line in data)
-        //{
-        //   string[] arr = line.Split(',');
-        //   int saveDataSignifier = int.Parse(arr[1]);
-
-        //   if (saveDataSignifier == PartyCharacterSaveDataSignifier)
-        //   {
-        //       PartyCharacter temp = new PartyCharacter(int.Parse(arr[2]), int.Parse(arr[3]), int.Parse(arr[4]), int.Parse(arr[5]), int.Parse(arr[6]), int.Parse(arr[7]));
-        //       GameContent.partyCharacters.AddLast(temp);
-        //   }
-        //   else if (saveDataSignifier == EquipmentSaveDataSignifier)
-        //   {
-        //       GameContent.partyCharacters.Last.Value.equipment.AddLast(int.Parse(arr[2]));
-        //   }
-
-        //}
         GameContent.partyCharacters.Clear();
         GameContent.partyCharacters = DataManager.DeserializeParty(data);
         GameContent.RefreshUI();
@@ -348,8 +310,6 @@ class PartySaveData
 {
     public uint index; 
     public string name;
-    const int PartyCharacterSaveDataSignifier = 0;
-    const int EquipmentSaveDataSignifier = 1;
 
     public PartySaveData(uint i, string name)
     {
@@ -359,20 +319,14 @@ class PartySaveData
 
     public void SaveParty()
     {
-        
-            StreamWriter sw = new StreamWriter(Application.dataPath + Path.DirectorySeparatorChar + index +".txt");
-            foreach (PartyCharacter pc in GameContent.partyCharacters)
-            {
-                Debug.Log("PC class id == " + pc.classID);
-                sw.WriteLine(PartyCharacterSaveDataSignifier + "," + pc.classID + "," + pc.health + "," + pc.mana + "," + pc.strength + "," + pc.agility + "," + pc.wisdom);
+        StreamWriter sw = new StreamWriter(Application.dataPath + Path.DirectorySeparatorChar + index +".txt");
+        LinkedList<string> data = DataManager.SerializeParty(GameContent.partyCharacters);
 
-                foreach (int equip in pc.equipment)
-                {
-                    sw.WriteLine(EquipmentSaveDataSignifier + "," + equip);
-                }
-            }
-
-            sw.Close();
+        foreach (string line in data)
+        {
+            sw.WriteLine(line);
+        }
+        sw.Close();
     }
 
     public void LoadParty()
@@ -380,29 +334,19 @@ class PartySaveData
        
         string path = Application.dataPath + Path.DirectorySeparatorChar + index + ".txt";
 
-       
-
         if (File.Exists(path))
         {
             GameContent.partyCharacters.Clear();
             StreamReader sr = new StreamReader(path);
+            List<string> data = new List<string>();
             string line = "";
 
             while ((line = sr.ReadLine()) != null)
             {
-                string[] arr = line.Split(',');
-                int saveDataSignifier = int.Parse(arr[0]);
-
-                if (saveDataSignifier == PartyCharacterSaveDataSignifier)
-                {
-                    PartyCharacter temp = new PartyCharacter(int.Parse(arr[1]), int.Parse(arr[2]), int.Parse(arr[3]), int.Parse(arr[4]), int.Parse(arr[5]), int.Parse(arr[6]));
-                    GameContent.partyCharacters.AddLast(temp);
-                }
-                else if (saveDataSignifier == EquipmentSaveDataSignifier)
-                {
-                    GameContent.partyCharacters.Last.Value.equipment.AddLast(int.Parse(arr[1]));
-                }
+                data.Add(line);
             }
+            sr.Close();
+            GameContent.partyCharacters = DataManager.DeserializeParty(data);
             GameContent.RefreshUI();
         }
     }

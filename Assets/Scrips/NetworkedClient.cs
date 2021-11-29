@@ -113,7 +113,11 @@ public class NetworkedClient : MonoBehaviour
         }
         if (signifier == ServerToClientSignifiers.ServerSendingPartyData)
         {
-            sharedPartyData.Add(msg);
+            //Want to remove the signifier and , then save it all as its already formatted
+            int lengthOfSubString = msg.Length - 3;
+            string trimmedMessage = msg.Substring(3, lengthOfSubString);
+
+            sharedPartyData.Add(trimmedMessage);
         }
         if (signifier == ServerToClientSignifiers.ServerSendingPartyDataTransferEnd)
         {
